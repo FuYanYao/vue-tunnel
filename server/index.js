@@ -11,6 +11,8 @@ app.use(bodyParser.urlencoded({
 
 app.use("/api",router)
 
+app.use(express.static("upload"))
+
 app.listen(3000,()=>{
     console.log("服务器运行在3000端口");
 })

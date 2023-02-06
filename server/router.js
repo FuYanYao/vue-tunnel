@@ -7,6 +7,8 @@ const jwtSecteat = require("./jwtSecret")
 const vipData = require("./data/vip")
 const adminData = require("./data/admin")
 const lineData = require("./data/line")
+const multer = require("multer")
+const fs = require("fs")
 
 router.post("/login", (req, res) => {
     // 接收客户端参数
@@ -260,4 +262,141 @@ router.get("/tunnel/list/child",(req,res)=> {
     })
 })
 
+/**
+ * 隧道设计内容
+ */
+router.get("/tunnel/content",(req,res)=>{
+    const content = url.parse(req.url,true).query.content
+    const sql = "select * from tunnelcontent where content=?"
+    SQLConnect(sql,[content],result=>{
+        if(result.length>0){
+            res.send({
+                status: 200,
+                result
+            })
+        } else {
+            res.send({
+                status: 500,
+                msg: "暂无数据"
+            })
+        }
+    })
+})
+
+/**
+ * 文件上传 http://localhost:3000/api/upload
+ */
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "./upload/")
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + "-" + file.originalname)
+    }
+})
+ 
+var createFolder = function (folder) {
+    try {
+        fs.accessSync(folder);
+    } catch (e) {
+        fs.mkdirSync(folder);
+    }
+}
+ 
+var uploadFolder = './upload/';
+createFolder(uploadFolder);
+var upload = multer({ storage: storage });
+ 
+router.post('/upload', upload.single('file'), function (req, res, next) {
+    var file = req.file;
+    console.log('文件类型：%s', file.mimetype);
+    console.log('原始文件名：%s', file.originalname);
+    console.log('文件大小：%s', file.size);
+    console.log('文件保存路径：%s', file.path);
+    res.json({ res_code: '0', name: file.originalname, url: file.path });
+});
+
+/**
+ * 更新隧道设计信息-content-url
+ */
+router.get("/tunnel/content/url",(req,res) => {
+    const id = url.parse(req.url,true).query.id
+    const urlName = url.parse(req.url,true).query.urlName
+    const sql = "update tunnelcontent set url=? where id=?"
+    SQLConnect(sql,[urlName,id],result=> {
+        if(result.affectedRows>0){
+            res.send({
+                status: 200,
+                msg: '上传成功'
+            })
+        } else {
+            res.send({
+                status: 500,
+                msg: '上传失败'
+            })
+        }
+    })
+})
+
+/**
+ * PDF预览
+ */
+router.get("/tunnel/pdf",(req,res)=> {
+    const id = url.parse(req.url,true).query.id
+    const sql = "select * from tunnelcontent where id=?"
+    SQLConnect(sql,[id],result=> {
+        if(result.length> 0) {
+            res.send({
+                status: 200,
+                result: result[0]
+            })
+        } else {
+            res.send({
+                status: 500,
+                msg: '暂无数据'
+            })
+        }
+    })
+})
+
+/**
+ * 用户列表
+ */
+router.get("/user/list",(req,res)=> {
+    const sql = "select * from user"
+    SQLConnect(sql,null,result=>{
+        if(result.length>0){
+            res.send({
+                status: 200,
+                result
+            })
+        }else {
+            res.send({
+                status: 500,
+                msg: '暂无数据'
+            })
+        } 
+    })
+})
+
+/**
+ * 用户搜索
+ */
+router.get("/user/search",(req,res)=> {
+    const search = url.parse(req.url,true).query.search
+    const sql = "select * from user where concat(`username`,`permission`,`phone`) like '%" + search + "%'"
+    SQLConnect(sql, null, result => {
+        if (result.length > 0) {
+            res.send({
+                status: 200,
+                result
+            })
+        } else {
+            res.send({
+                status: 500,
+                msg: "暂无信息"
+            })
+        }
+    })
+})
 module.exports = router

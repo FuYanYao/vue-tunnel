@@ -63,6 +63,33 @@ const api = {
             params
         })
     },
+    // 隧道设计信息-content
+    getTunnelContent(params) {
+        return axios.get(base.baseUrl + base.tunnelContent, {
+            params
+        })
+    },
+    // 隧道设计信息-content-上传
+    getUploadTunnelContent(params) {
+        return axios.get(base.baseUrl + base.uploadTunnelContent,{
+            params
+        })
+    },
+    getPdfPreview(params) {
+        return axios.get(base.baseUrl + base.pdfPreview,{
+            params
+        })
+    },
+    // 获取用户列表
+    getUserList() {
+        return axios.get(base.baseUrl + base.userList)
+    },
+    // 搜索用户
+    getSearchUser(params) {
+        return axios.get(base.baseUrl + base.searchUser,{
+            params
+        })
+    }
 }
 
 export default api

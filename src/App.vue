@@ -25,4 +25,10 @@ body,html,#app{
   color: #fff;
 }
 
+/**el-tree选中样式修改 */
+.is-current .el-tree-node__content{
+  background-color: #337ecc !important;
+  color:#fff !important;
+}
+
 </style>
